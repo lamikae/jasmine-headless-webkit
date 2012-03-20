@@ -195,7 +195,15 @@ module Jasmine
           end
         end
 
-        runner = lambda { system jasmine_command(run_targets) }
+        runner = lambda { system jasmine_command(run_targets)
+          if $?.exitstatus == 127
+            # Problem executing command?
+            # This could be an issue on systems that do not have the
+            # necessary Qt4.7 and qmake libraries; the gem installs
+            # but does not function.
+            raise `#{jasmine_command(run_targets)}`
+          end
+        }
 
         if options[:use_server]
           wrap_in_server(run_targets, &runner)
